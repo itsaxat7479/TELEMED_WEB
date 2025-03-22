@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div class="bg-white shadow-lg rounded-lg p-6 w-96">
+        <h2 class="text-2xl font-semibold text-center">Select Payment Method</h2>
+
+        <!-- Payment Options -->
+        <div class="mt-4">
+            <label class="block text-lg font-medium">Choose Payment:</label>
+            <select id="paymentMethod" class="w-full p-2 border rounded mt-2">
+                <option value="">Select Payment Method</option>
+                <option value="online">Online Payment</option>
+                <option value="offline">NEFT Payment</option>
+            </select>
+        </div>
+
+        <!-- Online Payment -->
+        <div id="onlinePayment" class="hidden mt-4">
+            <h3 class="text-lg font-medium">Scan to Pay</h3>
+            <img src="images/PAYMENT GATEWAY.jpg" alt="QR Code" class="mt-2 mx-auto">
+            <button onclick="processOnlinePayment()" class="w-full bg-blue-500 text-white py-2 rounded mt-3">Pay Now</button>
+        </div>
+
+        <!-- Offline Payment -->
+        <div id="offlinePayment" class="hidden mt-4">
+            <h3 class="text-lg font-medium">Bank Account Payment</h3>
+            <input type="text" id="accountNumber" placeholder="Enter Bank Account Number" class="w-full p-2 border rounded mt-2">
+            <input type="text" id="ifscCode" placeholder="Enter IFSC Code" class="w-full p-2 border rounded mt-2">
+            <input type="text" id="accountHolder" placeholder="Account Holder Name" class="w-full p-2 border rounded mt-2">
+            <button onclick="processOfflinePayment()" class="w-full bg-green-500 text-white py-2 rounded mt-3">Submit Payment</button>
+        </div>
+
+        <!-- Payment Notification -->
+        <div id="paymentNotification" class="hidden mt-4 p-3 text-center text-white rounded"></div>
+
+        <!-- Payment Receipt -->
+        <div id="receipt" class="hidden mt-4 bg-gray-200 p-3 rounded">
+            <h3 class="text-lg font-semibold">Payment Receipt</h3>
+            <p id="receiptDetails"></p>
+            <button onclick="downloadReceipt()" class="w-full bg-gray-500 text-white py-2 rounded mt-3">Download Receipt</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("paymentMethod").addEventListener("change", function () {
+            let selectedMethod = this.value;
+            document.getElementById("onlinePayment").classList.add("hidden");
+            document.getElementById("offlinePayment").classList.add("hidden");
+
+            if (selectedMethod === "online") {
+                document.getElementById("onlinePayment").classList.remove("hidden");
+            } else if (selectedMethod === "offline") {
+                document.getElementById("offlinePayment").classList.remove("hidden");
+            }
+        });
+
+        function processOnlinePayment() {
+            let notification = document.getElementById("paymentNotification");
+            let isSuccess = Math.random() > 0.5; // Simulate success/failure
+
+            if (isSuccess) {
+                notification.innerHTML = "✅ Payment Successful!";
+                notification.className = "bg-green-500 mt-4 p-3 text-center text-white rounded";
+                generateReceipt("Online", "Transaction ID: TXN123456");
+            } else {
+                notification.innerHTML = "❌ Payment Failed! Try again.";
+                notification.className = "bg-red-500 mt-4 p-3 text-center text-white rounded";
+            }
+
+            notification.classList.remove("hidden");
+        }
+
+        function processOfflinePayment() {
+            let accountNumber = document.getElementById("accountNumber").value;
+            let ifscCode = document.getElementById("ifscCode").value;
+            let accountHolder = document.getElementById("accountHolder").value;
+            let notification = document.getElementById("paymentNotification");
+
+            if (accountNumber && ifscCode && accountHolder) {
+                notification.innerHTML = "✅ Payment Submitted for Processing!";
+                notification.className = "bg-blue-500 mt-4 p-3 text-center text-white rounded";
+                notification.classList.remove("hidden");
+
+                generateReceipt("Offline", `Account: ${accountNumber}, IFSC: ${ifscCode}, Name: ${accountHolder}`);
+            } else {
+                alert("Please fill all the details!");
+            }
+        }
+
+        function generateReceipt(method, details) {
+            document.getElementById("receipt").classList.remove("hidden");
+            document.getElementById("receiptDetails").innerHTML = `Payment Method: ${method} <br> ${details}`;
+        }
+
+        function downloadReceipt() {
+            let receiptText = document.getElementById("receiptDetails").innerText;
+            let blob = new Blob([receiptText], { type: "text/plain" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "payment_receipt.txt";
+            link.click();
+        }
+    </script>
+
+</body>
+</html>
