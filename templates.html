@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Detection Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl text-center font-semibold">Disease Detection Chatbot</h2>
+        <input type="file" id="imageUpload" class="mt-4 w-full border p-2">
+        <button onclick="uploadImage()" class="w-full bg-blue-500 text-white py-2 rounded mt-3">Detect Disease</button>
+        <div id="result" class="mt-4 text-center text-lg font-bold"></div>
+    </div>
+
+    <script>
+        function uploadImage() {
+            let fileInput = document.getElementById("imageUpload");
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            fetch("/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = "Prediction: " + data.prediction;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

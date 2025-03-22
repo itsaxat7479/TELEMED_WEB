@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Report Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-center">Health Report Generator 📄</h2>
+        <p class="text-gray-600 text-sm mt-2 text-center">Fill in your health details below</p>
+
+        <!-- Health Input Fields -->
+        <div class="mt-4">
+            <input type="text" id="name" placeholder="Full Name" class="w-full p-2 border rounded mt-2">
+            <input type="number" id="age" placeholder="Age" class="w-full p-2 border rounded mt-2">
+            <input type="text" id="bloodGroup" placeholder="Blood Group" class="w-full p-2 border rounded mt-2">
+            <input type="text" id="healthIssue" placeholder="Health Issues (if any)" class="w-full p-2 border rounded mt-2">
+            <textarea id="doctorNotes" placeholder="Doctor's Notes" class="w-full p-2 border rounded mt-2"></textarea>
+            <button onclick="generatePDF()" class="w-full bg-blue-500 text-white py-2 rounded mt-3">Generate PDF</button>
+        </div>
+    </div>
+
+    <script>
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF();
+
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
+            let bloodGroup = document.getElementById("bloodGroup").value;
+            let healthIssue = document.getElementById("healthIssue").value;
+            let doctorNotes = document.getElementById("doctorNotes").value;
+
+            if (!name || !age || !bloodGroup) {
+                alert("Please fill all required fields!");
+                return;
+            }
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(20);
+            doc.text("Health Report", 80, 20);
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            
+            // Correcting template literals by enclosing the entire text in backticks
+            doc.text(`Name: ${name}`, 20, 40);
+            doc.text(`Age: ${age}`, 20, 50);
+            doc.text(`Blood Group: ${bloodGroup}`, 20, 60);
+            doc.text(`Health Issues: ${healthIssue || "None"}`, 20, 70);
+            doc.text("Doctor's Notes:", 20, 80);
+            doc.text(doctorNotes || "No additional notes", 20, 90, { maxWidth: 160 });
+            
+            // Correcting file name formatting
+            doc.save(`${name}_Health_Report.pdf`);
+            
+        }
+    </script>
+
+</body>
+</html>
