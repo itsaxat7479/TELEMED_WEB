@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center h-screen">
+    <div class="bg-white shadow-2xl rounded-2xl p-8 w-96 transform transition-all hover:scale-105">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Select Payment Method</h2>
+        <div class="border-b-2 pb-3">
+            <label class="block text-lg font-semibold text-gray-700">Choose Payment:</label>
+            <select id="paymentMethod" class="w-full p-3 border rounded-lg mt-2 text-gray-700 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select Payment Method</option>
+                <option value="online">Online Payment</option>
+                <option value="offline">NEFT Payment</option>
+            </select>
+        </div>
+        
+        <div id="onlinePayment" class="hidden mt-4">
+            <h3 class="text-lg font-semibold text-gray-700">Scan to Pay</h3>
+            <img src="images/PAYMENT GATEWAY.jpg" alt="QR Code" class="mt-3 mx-auto w-32 h-32 shadow-lg rounded-lg">
+            <button onclick="processOnlinePayment()" class="w-full bg-blue-600 text-white py-3 rounded-lg mt-4 hover:bg-blue-700 transition-all">Pay Now</button>
+        </div>
+        
+        <div id="offlinePayment" class="hidden mt-4">
+            <h3 class="text-lg font-semibold text-gray-700">Bank Account Payment</h3>
+            <input type="text" id="accountNumber" placeholder="Enter Bank Account Number" class="w-full p-3 border rounded-lg mt-3 focus:ring-2 focus:ring-indigo-500">
+            <input type="text" id="ifscCode" placeholder="Enter IFSC Code" class="w-full p-3 border rounded-lg mt-3 focus:ring-2 focus:ring-indigo-500">
+            <input type="text" id="accountHolder" placeholder="Account Holder Name" class="w-full p-3 border rounded-lg mt-3 focus:ring-2 focus:ring-indigo-500">
+            <button onclick="processOfflinePayment()" class="w-full bg-green-600 text-white py-3 rounded-lg mt-4 hover:bg-green-700 transition-all">Submit Payment</button>
+        </div>
+        
+        <div id="paymentNotification" class="hidden mt-4 p-3 text-center text-white rounded-lg font-semibold"></div>
+        <div id="receipt" class="hidden mt-4 bg-gray-200 p-4 rounded-lg shadow-lg">
+            <h3 class="text-lg font-bold text-gray-800">Payment Receipt</h3>
+            <p id="receiptDetails" class="text-gray-700"></p>
+            <button onclick="downloadReceipt()" class="w-full bg-gray-700 text-white py-3 rounded-lg mt-4 hover:bg-gray-900 transition-all">Download Receipt</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("paymentMethod").addEventListener("change", function () {
+            let selectedMethod = this.value;
+            document.getElementById("onlinePayment").classList.add("hidden");
+            document.getElementById("offlinePayment").classList.add("hidden");
+            if (selectedMethod === "online") {
+                document.getElementById("onlinePayment").classList.remove("hidden");
+            } else if (selectedMethod === "offline") {
+                document.getElementById("offlinePayment").classList.remove("hidden");
+            }
+        });
+
+        function processOnlinePayment() {
+            let notification = document.getElementById("paymentNotification");
+            let isSuccess = Math.random() > 0.5;
+            if (isSuccess) {
+                notification.innerHTML = "✅ Payment Successful!";
+                notification.className = "bg-green-500 p-3 text-center text-white rounded-lg font-semibold";
+                generateReceipt("Online", "Transaction ID: TXN123456");
+            } else {
+                notification.innerHTML = "❌ Payment Failed! Try again.";
+                notification.className = "bg-red-500 p-3 text-center text-white rounded-lg font-semibold";
+            }
+            notification.classList.remove("hidden");
+        }
+
+        function processOfflinePayment() {
+            let accountNumber = document.getElementById("accountNumber").value;
+            let ifscCode = document.getElementById("ifscCode").value;
+            let accountHolder = document.getElementById("accountHolder").value;
+            let notification = document.getElementById("paymentNotification");
+            if (accountNumber && ifscCode && accountHolder) {
+                notification.innerHTML = "✅ Payment Submitted for Processing!";
+                notification.className = "bg-blue-500 p-3 text-center text-white rounded-lg font-semibold";
+                generateReceipt("Offline", `Account: ${accountNumber}, IFSC: ${ifscCode}, Name: ${accountHolder}`);
+            } else {
+                alert("Please fill all the details!");
+            }
+            notification.classList.remove("hidden");
+        }
+
+        function generateReceipt(method, details) {
+            document.getElementById("receipt").classList.remove("hidden");
+            document.getElementById("receiptDetails").innerHTML = `Payment Method: ${method} <br> ${details}`;
+        }
+
+        function downloadReceipt() {
+            let receiptText = document.getElementById("receiptDetails").innerText;
+            let blob = new Blob([receiptText], { type: "text/plain" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "payment_receipt.txt";
+            link.click();
+        }
+    </script>
+</body>
+</html>

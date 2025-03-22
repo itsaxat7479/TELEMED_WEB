@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Reminder & Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-center">Medicine Reminder 💊</h2>
+        <p class="text-gray-600 text-sm mt-2 text-center">Set your medicine reminders easily</p>
+
+        <!-- Medicine Input Fields -->
+        <div class="mt-4">
+            <input type="text" id="medicineName" placeholder="Medicine Name" class="w-full p-2 border rounded mt-2">
+            <input type="time" id="medicineTime" class="w-full p-2 border rounded mt-2">
+            <button onclick="addMedicine()" class="w-full bg-blue-500 text-white py-2 rounded mt-3">Add Reminder</button>
+        </div>
+
+        <!-- Medicine List -->
+        <h3 class="text-lg font-medium mt-4">Upcoming Reminders</h3>
+        <ul id="medicineList" class="mt-2 space-y-2"></ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadReminders);
+
+        function addMedicine() {
+            let name = document.getElementById("medicineName").value;
+            let time = document.getElementById("medicineTime").value;
+            if (!name || !time) {
+                alert("Please enter medicine name and time!");
+                return;
+            }
+
+            let reminders = JSON.parse(localStorage.getItem("medicines")) || [];
+            let newMedicine = { name, time, taken: false };
+            reminders.push(newMedicine);
+            localStorage.setItem("medicines", JSON.stringify(reminders));
+
+            document.getElementById("medicineName").value = "";
+            document.getElementById("medicineTime").value = "";
+            loadReminders();
+        }
+
+        function loadReminders() {
+            let medicineList = document.getElementById("medicineList");
+            medicineList.innerHTML = "";
+            let reminders = JSON.parse(localStorage.getItem("medicines")) || [];
+
+            reminders.forEach((medicine, index) => {
+                let listItem = document.createElement("li");
+                listItem.className = "p-2 bg-gray-200 rounded flex justify-between items-center";
+
+                let medInfo = document.createElement("span");
+                medInfo.innerHTML = ⏰ ${medicine.time} - <strong>${medicine.name}</strong>;
+
+                let takeBtn = document.createElement("button");
+                takeBtn.innerText = medicine.taken ? "✔ Taken" : "Take";
+                takeBtn.className = medicine.taken ? "bg-green-500 text-white px-3 py-1 rounded" : "bg-yellow-500 text-white px-3 py-1 rounded";
+                takeBtn.onclick = () => markAsTaken(index);
+
+                listItem.appendChild(medInfo);
+                listItem.appendChild(takeBtn);
+                medicineList.appendChild(listItem);
+            });
+        }
+
+        function markAsTaken(index) {
+            let reminders = JSON.parse(localStorage.getItem("medicines")) || [];
+            reminders[index].taken = true;
+            localStorage.setItem("medicines", JSON.stringify(reminders));
+            loadReminders();
+        }
+
+        function checkReminders() {
+            let now = new Date();
+            let currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            let reminders = JSON.parse(localStorage.getItem("medicines")) || [];
+
+            reminders.forEach((medicine) => {
+                if (medicine.time === currentTime && !medicine.taken) {
+                    notifyUser(medicine.name);
+                }
+            });
+        }
+
+        function notifyUser(medicineName) {
+            if (Notification.permission === "granted") {
+                new Notification("💊 Medicine Reminder", {
+                    body: Time to take your medicine: ${medicineName}
+                });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification("💊 Medicine Reminder", {
+                            body: Time to take your medicine: ${medicineName}
+                        });
+                    }
+                });
+            }
+        }
+
+        setInterval(checkReminders, 60000); // Check every 60 seconds
+    </script>
+</body>
+</html>

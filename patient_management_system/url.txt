@@ -1,0 +1,3 @@
+http://localhost/patient_management_system/pages/register.php
+http://localhost/patient_management_system/pages/login.php
+http://localhost/patient_management_system/index.html
